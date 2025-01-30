@@ -4,17 +4,14 @@ import { db } from "@/server/db";
 import { auth } from "@clerk/nextjs/server";
 import { workflows } from "@/server/db/schema";
 
-export async function getUserWorkflows() {
+export async function getUserWorkflowById(id: string) {
   const { userId } = await auth();
 
   if (!userId) {
     throw new Error("User not authenticated");
   }
 
-  return db.query.workflows.findMany({
-    where: (model, { eq }) => eq(model.userId, userId),
-    orderBy: (model, { asc }) => asc(model.createdAt),
+  return db.query.workflows.findFirst({
+    where: (model, { eq }) => eq(model.userId, userId) && eq(model.id, id),
   });
 }
-
-export type Workflow = typeof workflows.$inferSelect;
