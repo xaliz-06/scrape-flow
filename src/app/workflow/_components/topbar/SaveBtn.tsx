@@ -28,6 +28,7 @@ const SaveBtn = ({ workflowId }: { workflowId: string }) => {
   return (
     <Button
       variant={"outline"}
+      disabled={saveMutation.isPending}
       className="flex items-center gap-2"
       onClick={handleSave}
     >

@@ -5,6 +5,7 @@ import { workflows } from "@/server/db/schema";
 import { WorkflowStatus } from "@/types/workflow";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 export async function UpdateWorkflow({
   id,
@@ -36,4 +37,6 @@ export async function UpdateWorkflow({
       definition: definition,
     })
     .where(eq(workflows.id, id) && eq(workflows.userId, userId));
+
+  revalidatePath("/workflows");
 }
