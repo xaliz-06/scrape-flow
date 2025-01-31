@@ -13,13 +13,13 @@ export const workflows = sqliteTable(
     description: text("description"),
     definition: text("definition").notNull(),
     status: text("status").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp" })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: integer("updated_at", { mode: "timestamp" })
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`)
-      .$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     // Composite unique constraint on userId and name
