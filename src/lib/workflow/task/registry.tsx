@@ -4,7 +4,7 @@ import { PageToHTMLTask } from "./PageToHTML";
 import { ExtractTextFromElement } from "./ExtractTextFromElement";
 
 export type TaskRegistryType = {
-  [K in TaskType]: TaskConfig;
+  [K in TaskType]: TaskConfig & { type: K };
 };
 
 export const TaskRegistry: TaskRegistryType = {

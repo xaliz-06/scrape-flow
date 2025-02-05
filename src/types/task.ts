@@ -30,7 +30,8 @@ export interface TaskConfig {
   type: TaskType;
   label: string;
   icon: (props: LucideProps) => React.JSX.Element;
-  isEntryPoint: boolean;
+  isEntryPoint?: boolean;
   inputs: TaskParam[];
   outputs: TaskParam[];
+  credits: number;
 }

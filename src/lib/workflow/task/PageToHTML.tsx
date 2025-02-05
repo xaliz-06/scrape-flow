@@ -1,4 +1,4 @@
-import { TaskParamType, TaskType } from "@/types/task";
+import { TaskConfig, TaskParamType, TaskType } from "@/types/task";
 import { CodeIcon, LucideProps } from "lucide-react";
 
 export const PageToHTMLTask = {
@@ -25,4 +25,5 @@ export const PageToHTMLTask = {
       type: TaskParamType.BROWSER_INSTANCE,
     },
   ],
-};
+  credits: 2,
+} satisfies TaskConfig;

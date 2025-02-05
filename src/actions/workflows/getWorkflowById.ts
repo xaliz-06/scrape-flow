@@ -2,7 +2,6 @@
 
 import { db } from "@/server/db";
 import { auth } from "@clerk/nextjs/server";
-import { workflows } from "@/server/db/schema";
 
 export async function getUserWorkflowById(id: string) {
   const { userId } = await auth();

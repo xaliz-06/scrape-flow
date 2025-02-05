@@ -55,6 +55,7 @@ const WorkflowEditor = ({ workflow }: { workflow: Workflow }) => {
       const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
 
       const newNode = CreateFlowNode(taskType as TaskType, position);
+      console.log("@NODE CRATED", newNode);
       setNodes((nodes) => nodes.concat(newNode));
     },
     [setNodes, screenToFlowPosition]
@@ -82,7 +83,8 @@ const WorkflowEditor = ({ workflow }: { workflow: Workflow }) => {
   const isValidConnection = useCallback(
     (connection: Edge | Connection) => {
       // Prevent connecting to the same node
-      if (connection.sourceHandle === connection.targetHandle) return false;
+
+      if (connection.source === connection.target) return false;
 
       // Prevent connecting to a node that doesn't exist
       const sourceNode = nodes.find((node) => node.id === connection.source);
