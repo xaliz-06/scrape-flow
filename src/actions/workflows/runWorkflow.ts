@@ -1,5 +1,6 @@
 "use server";
 
+import { ExecuteWorkflow } from "@/lib/workflow/executeWorkflow";
 import { flowToExecutionPlan } from "@/lib/workflow/executionPlan";
 import { TaskRegistry } from "@/lib/workflow/task/registry";
 import { db } from "@/server/db";
@@ -91,5 +92,6 @@ export async function RunWorkflow(form: {
     throw new Error("failed to create phases");
   }
 
+  ExecuteWorkflow(execution.id);
   redirect(`/workflow/runs/${workflow.id}/${execution.id}`);
 }

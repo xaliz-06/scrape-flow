@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ReactNode } from 'react'       
+import React, { ReactNode, useState } from 'react'       
 import {formatDistanceToNow} from 'date-fns'
 import { GetWorkflowExecutionWithPhases } from '@/actions/workflows/getWorkflowExecutionWithPhases'
 import { WorkflowExecutionStatus } from '@/types/workflow'
@@ -10,11 +10,14 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DatesToDurationString } from '@/lib/helpers/datesToDurationString'
+import { GetPhasesTotalCost } from '@/lib/helpers/phases'
+import { GetWorkflowPhaseDetails } from '@/actions/workflows/getWorkflowPhaseDetails'
 
 type ExecutionData = Awaited<ReturnType<typeof GetWorkflowExecutionWithPhases>>
 
 function ExecutionViewer({initialData}: {initialData: ExecutionData}) {
 
+    const [selectedState, setSelectedState] = useState<string | null>(null)
     const query = useQuery({
         queryKey: ["execution", initialData?.id],
         initialData,
@@ -22,8 +25,17 @@ function ExecutionViewer({initialData}: {initialData: ExecutionData}) {
         refetchInterval: (q) => q.state.data?.status === WorkflowExecutionStatus.RUNNING ? 1000 : false
     })
 
+    const phasesDetails = useQuery({
+        queryKey: ["phaseDetails", selectedState],
+        enabled: selectedState !== null,
+        queryFn: () => GetWorkflowPhaseDetails(selectedState!),
+    })
+
+    const isRunning = query.data?.status === WorkflowExecutionStatus.RUNNING
 
     const duration = DatesToDurationString(query.data?.completedAt, query.data?.startedAt)
+
+    const creditsConsumed = GetPhasesTotalCost(query.data?.phases || [])
   return (
     <div className='flex w-full h-full'>
         <aside className='w-[440px] min-w-[440px] max-w-[440px] border-r-2 border-separate flex flex-grow flex-col overflow-hidden'>
@@ -42,7 +54,7 @@ function ExecutionViewer({initialData}: {initialData: ExecutionData}) {
                     
                 }/>
                 <ExecutionLabel icon={ClockIcon} label="Duration" value={duration ? duration : <Loader2Icon className="animate-spin" size={20}/>}/>
-                <ExecutionLabel icon={CoinsIcon} label="Credits Consumed" value={"TODO"}/>
+                <ExecutionLabel icon={CoinsIcon} label="Credits Consumed" value={creditsConsumed}/>
             </div>
             <Separator/>
             <div className='flex justify-center items-center py-2 px-4'>
@@ -56,15 +68,23 @@ function ExecutionViewer({initialData}: {initialData: ExecutionData}) {
 
             <div className="overflow-auto w-full px-2 py-4">
                 {query.data?.phases.map((phase, index) => (
-                    <Button key={phase.id} className='w-full justify-between' variant={"ghost"}>
+                    <Button key={phase.id} className='w-full justify-between' variant={selectedState === phase.id ? "secondary" : "ghost"} onClick={() => 
+                        {
+                            if (isRunning) return
+                            setSelectedState(phase.id)}
+                            }>
                         <div className='flex items-center gap-2'>
                             <Badge variant={"outline"}>{index + 1}</Badge>
                             <p className='font-semibold'>{phase.name}</p>
                         </div>
+                        <p className='text-xs text-muted-foreground'>{phase.status}</p>
                     </Button>
                 ))}
             </div>
         </aside>
+        <div className='flex w-full h-full'>
+            <pre>{JSON.stringify(phasesDetails.data, null, 4)}</pre>
+        </div>
     </div>
   )
 }

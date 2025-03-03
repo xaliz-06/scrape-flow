@@ -20,6 +20,9 @@ export const workflows = sqliteTable(
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`)
       .$onUpdate(() => new Date()),
+    lastRunAt: integer("last_run_at", { mode: "timestamp_ms" }),
+    lastRunId: text("last_run_id"),
+    lastRunStatus: text("last_run_status")
   },
   (table) => [
     // Composite unique constraint on userId and name
@@ -41,6 +44,7 @@ export const workflowExecutions = sqliteTable("workflow_executions", {
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
   startedAt: integer("started_at", { mode: "timestamp_ms" }),
+  creditsConsumed: integer("credits_consumed").default(0),
   completedAt: integer("completed_at", { mode: "timestamp_ms" }),
 });
 
@@ -57,7 +61,7 @@ export const executionPhases = sqliteTable("workflow_phases", {
   completedAt: integer("completed_at", { mode: "timestamp_ms" }),
   inputs: text("inputs"),
   outputs: text("outputs"),
-  creditsCost: integer("credits_costs"),
+  creditsConsumed: integer("credits_costs"),
   workflowExecutionId: text("workflow_execution_id")
     .notNull()
     .references(() => workflowExecutions.id, { onDelete: "cascade" }),
@@ -78,7 +82,7 @@ export const workflowExecutionsRelations = relations(
   })
 );
 
-export const executionPhasesRelaions = relations(
+export const executionPhasesRelations = relations(
   executionPhases,
   ({ one }) => ({
     workflowExecution: one(workflowExecutions, {
